@@ -1,4 +1,4 @@
-# lisp-network
+# lispnet
 ### _Alex Chenot_
 
-Lisp Network is a network library for Common Lisp.
+LispNet is a network library for Common Lisp.

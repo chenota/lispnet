@@ -1,4 +1,4 @@
 ;;;; package.lisp
 
-(defpackage #:lisp-network
+(defpackage #:lispnet
   (:use #:cl))
