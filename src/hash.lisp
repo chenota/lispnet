@@ -17,7 +17,7 @@
         (keys current exists-path)
         (cond
          ((not keys)
-           (values current (reverse exists-path)))
+           (values current exists-path))
          ((not (typep current 'hash-table))
            (gethash-multi-helper (cdr keys) nil (cons nil exists-path)))
          (t

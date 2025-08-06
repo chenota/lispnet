@@ -31,7 +31,7 @@
   (multiple-value-bind
       (value exists-path)
       (gethash-multi (slot-value d 'node) node key)
-    (values value (first exists-path) (second exists-path))))
+    (values value (second exists-path) (first exists-path))))
 
 (defsetf node-property (d node key) (new-value)
   `(progn (set-node ,d ,node ,key ,new-value) ,new-value))
@@ -57,14 +57,14 @@
       (value exists-path)
       (gethash-multi (slot-value d 'succ) begin end)
     (declare (ignore value))
-    (every #'identity exists-path)))
+    (first exists-path)))
 
 (defmethod edge-property ((d digraph) begin end key)
   (unless (keywordp key) (error "property keys must be keywords"))
   (multiple-value-bind
       (value exists-path)
       (gethash-multi (slot-value d 'succ) begin end key)
-    (values value (and (first exists-path) (second exists-path)) (third exists-path))))
+    (values value (and (third exists-path) (second exists-path)) (first exists-path))))
 
 (defsetf edge-property (d begin end key) (new-value)
   `(progn (set-edge ,d ,begin ,end ,key ,new-value) ,new-value))
@@ -107,7 +107,7 @@
             do (multiple-value-bind
                    (prop edge-exists prop-exists)
                    (edge-property d start-node node key)
-                   (declare (ignore edge-exists))
+                 (declare (ignore edge-exists))
                  (when
                   prop-exists
                   (if
@@ -134,7 +134,7 @@
             do (multiple-value-bind
                    (prop edge-exists prop-exists)
                    (edge-property d node end-node key)
-                   (declare (ignore edge-exists))
+                 (declare (ignore edge-exists))
                  (when
                   prop-exists
                   (if
