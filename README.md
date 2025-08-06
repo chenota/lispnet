@@ -99,7 +99,7 @@ Returns `<EdgeExists: Bool>`
 
 #### in-degree
 
-Get the in degree of a node.
+Get the in-degree of a node.
 
 ```
 (in-degree <DiGraph> <NodeValue: Any>)
@@ -109,10 +109,30 @@ Returns `(values <InDegree: Integer> <NodeExists: Bool>)`
 
 #### out-degree
 
-Get the out degree of a node.
+Get the out-degree of a node.
 
 ```
 (out-degree <DiGraph> <NodeValue: Any>)
 ```
 
 Returns `(values <OutDegree: Integer> <NodeExists: Bool>)`
+
+#### in-strength
+
+Get the in-strength of a node by a specific property key. This function works a lot like the reduce function and allows you to specify an operation to combine property values; the operation signature is `<Type of Init>*<Type of Result>-><Type of Result>`.
+
+```
+(in-strength <DiGraph> <NodeValue: Any> <Key: Keyword> &key <Operation: Any*Any->Any, Default #'+> <Init: Any, Default nil>)
+```
+
+Returns `(values <InStrength: Any> <NodeExists: Bool>)`
+
+#### out-strength
+
+Get the out-strength of a node by a specific property key. This function works a lot like the reduce function and allows you to specify an operation to combine property values; the operation signature is `<Type of Init>*<Type of Result>-><Type of Result>`.
+
+```
+(out-strength <DiGraph> <NodeValue: Any> <Key: Keyword> &key <Operation: Any*Any->Any, Default #'+> <Init: Any, Default nil>)
+```
+
+Returns `(values <OutStrength: Any> <NodeExists: Bool>)`

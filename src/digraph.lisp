@@ -92,3 +92,57 @@
       (values (hash-table-count succ-table) t)
       (values 0 t)))
    (values 0 nil)))
+
+(defmethod in-strength ((d digraph) node key &key (operation #'+) (init nil init-p))
+  (unless (keywordp key) (error "property keys must be keywords"))
+  (if
+   (nodep d node)
+   (multiple-value-bind
+       (pred-table exists)
+       (gethash node (slot-value d 'pred))
+     (if
+      exists
+      (loop for start-node being the hash-keys of pred-table
+            with result = init
+            do (multiple-value-bind
+                   (prop edge-exists prop-exists)
+                   (edge-property d start-node node key)
+                   (declare (ignore edge-exists))
+                 (when
+                  prop-exists
+                  (if
+                   init-p
+                   (setf result (funcall operation prop result))
+                   (progn
+                    (setf result prop)
+                    (setf init-p t)))))
+            finally (return (values result t)))
+      (values init t)))
+   (values nil nil)))
+
+(defmethod out-strength ((d digraph) node key &key (operation #'+) (init nil init-p))
+  (unless (keywordp key) (error "property keys must be keywords"))
+  (if
+   (nodep d node)
+   (multiple-value-bind
+       (succ-table exists)
+       (gethash node (slot-value d 'succ))
+     (if
+      exists
+      (loop for end-node being the hash-keys of succ-table
+            with result = init
+            do (multiple-value-bind
+                   (prop edge-exists prop-exists)
+                   (edge-property d node end-node key)
+                   (declare (ignore edge-exists))
+                 (when
+                  prop-exists
+                  (if
+                   init-p
+                   (setf result (funcall operation prop result))
+                   (progn
+                    (setf result prop)
+                    (setf init-p t)))))
+            finally (return (values result t)))
+      (values init t)))
+   (values nil nil)))
