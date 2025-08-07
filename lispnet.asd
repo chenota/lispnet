@@ -2,7 +2,7 @@
 
 (asdf:defsystem #:lispnet
   :description "Network library for Common Lisp"
-  :author "Alex Chenot"
+  :author "Alex Chenot <alex@chenot.dev>"
   :license "MIT"
   :version "0.0.1"
   :serial t

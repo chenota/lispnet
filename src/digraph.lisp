@@ -19,13 +19,6 @@
              (setf (gethash k table) v)
              (error "property keys must be keywords")))))
 
-(defmethod nodep ((d digraph) node)
-  (multiple-value-bind
-      (node exists)
-      (gethash node (slot-value d 'nodes))
-    (declare (ignore node))
-    exists))
-
 (defmethod node-property ((d digraph) node key)
   (unless (keywordp key) (error "property keys must be keywords"))
   (multiple-value-bind
@@ -52,13 +45,6 @@
              (setf (gethash k props) v)
              (error "property keys must be keywords")))))
 
-(defmethod edgep ((d digraph) begin end)
-  (multiple-value-bind
-      (value exists-path)
-      (gethash-multi (slot-value d 'succ) begin end)
-    (declare (ignore value))
-    (first exists-path)))
-
 (defmethod edge-property ((d digraph) begin end key)
   (unless (keywordp key) (error "property keys must be keywords"))
   (multiple-value-bind
@@ -71,7 +57,7 @@
 
 (defmethod in-degree ((d digraph) node)
   (if
-   (nodep d node)
+   (node-p d node)
    (multiple-value-bind
        (pred-table exists)
        (gethash node (slot-value d 'pred))
@@ -83,7 +69,7 @@
 
 (defmethod out-degree ((d digraph) node)
   (if
-   (nodep d node)
+   (node-p d node)
    (multiple-value-bind
        (succ-table exists)
        (gethash node (slot-value d 'succ))
@@ -96,7 +82,7 @@
 (defmethod in-strength ((d digraph) node key &key (operation #'+) (init nil init-p))
   (unless (keywordp key) (error "property keys must be keywords"))
   (if
-   (nodep d node)
+   (node-p d node)
    (multiple-value-bind
        (pred-table exists)
        (gethash node (slot-value d 'pred))
@@ -123,7 +109,7 @@
 (defmethod out-strength ((d digraph) node key &key (operation #'+) (init nil init-p))
   (unless (keywordp key) (error "property keys must be keywords"))
   (if
-   (nodep d node)
+   (node-p d node)
    (multiple-value-bind
        (succ-table exists)
        (gethash node (slot-value d 'succ))
@@ -145,4 +131,35 @@
                     (setf init-p t)))))
             finally (return (values result t)))
       (values init t)))
+   (values nil nil)))
+
+(defmethod nodes ((d digraph))
+  (loop for key being the hash-keys of (slot-value d 'nodes) collect key))
+
+(defmethod successor ((d digraph) node)
+  (if
+   (node-p d node)
+   (multiple-value-bind
+       (succ-table exists)
+       (gethash node (slot-value d 'succ))
+     (if
+      exists
+      (values
+        (loop for key being the hash-keys of succ-table collect key)
+        t)
+      (values nil t)))
+   (values nil nil)))
+
+(defmethod predecessor ((d digraph) node)
+  (if
+   (node-p d node)
+   (multiple-value-bind
+       (pred-table exists)
+       (gethash node (slot-value d 'pred))
+     (if
+      exists
+      (values
+        (loop for key being the hash-keys of pred-table collect key)
+        t)
+      (values nil t)))
    (values nil nil)))
