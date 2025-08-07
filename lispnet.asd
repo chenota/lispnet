@@ -9,4 +9,5 @@
   :components ((:file "package")
                (:module "src"
                         :components ((:file "digraph")
-                                     (:file "hash")))))
+                                     (:file "hash")
+                                     (:file "predicate")))))

@@ -20,6 +20,6 @@
   (unless (keywordp key) (error "property keys must be keywords"))
   (multiple-value-bind
       (property exists-path)
-      (gethash-multi (slot-value d 'node) node key)
+      (gethash-multi (slot-value d 'nodes) node key)
     (declare (ignore property))
     (values (first exists-path) (second exists-path))))
