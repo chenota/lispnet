@@ -136,3 +136,53 @@ Get the out-strength of a node by a specific property key. This function works a
 ```
 
 Returns `(values <OutStrength: Any> <NodeExists: Bool>)`
+
+#### nodes
+
+Get a list of all node values in the network.
+
+```
+(nodes <DiGraph>)
+```
+
+Returns `(values <Nodes: Any List> <NodeExists: Bool>)`
+
+#### successor
+
+Get all successors of a node in the network.
+
+```
+(successor <DiGraph> <NodeValue: Any>)
+```
+
+Returns `(values <Successors: Any List> <NodeExists: Bool>)`
+
+#### predecessor
+
+Get all predecessors of a node in the network.
+
+```
+(predecessor <DiGraph> <NodeValue: Any>)
+```
+
+Returns `(values <Predecessors: Any List> <NodeExists: Bool>)`
+
+#### node-property-p
+
+Check if a node has a certain property.
+
+```
+(node-property-p <DiGraph> <NodeValue: Any> <Key: Keyword>)
+```
+
+Returns `(values <HasProperty: Bool> <NodeExists: Bool>)`
+
+#### edge-property-p
+
+Check if an edge has a certain property.
+
+```
+(edge-property-p <DiGraph> <Begin: Any> <End: Any> <Key:Keyword>)
+```
+
+Returns `(values <HasProperty: Bool> <EdgeExists: Bool>)`
