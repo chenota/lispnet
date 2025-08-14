@@ -163,3 +163,33 @@
         t)
       (values nil t)))
    (values nil nil)))
+
+(defmethod rem-node ((d digraph) node)
+  (if
+   (node-p d node)
+   (let ((pred-table (slot-value d 'pred))
+         (succ-table (slot-value d 'succ)))
+     (remhash node (slot-value d 'nodes))
+     (remhash node (slot-value d 'succ))
+     (remhash node (slot-value d 'pred))
+     (loop for key being the hash-keys of pred-table do
+             (remhash node (gethash key pred-table)))
+     (loop for key being the hash-keys of succ-table do
+             (remhash node (gethash key succ-table)))
+     t)
+   nil))
+
+(defmethod rem-edge ((d digraph) begin end)
+  (if
+   (edge-p d begin end)
+   (progn
+    (multiple-value-bind
+        (table exists)
+        (gethash begin (slot-value d 'succ))
+      (when exists (remhash end table)))
+    (multiple-value-bind
+        (table exists)
+        (gethash end (slot-value d 'pred))
+      (when exists (remhash begin table)))
+    t)
+   nil))
