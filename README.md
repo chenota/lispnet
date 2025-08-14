@@ -47,7 +47,7 @@ Set a property value of a node; this function is effectively a wrapper of `set-n
 
 Returns `<Value: Any>`
 
-#### nodep
+#### node-p
 
 Check if a node exists in a graph.
 
@@ -87,7 +87,7 @@ Set a property value of an edge; this function is effectively a wrapper of `set-
 
 Returns `<Value: Any>`
 
-#### edgep
+#### edge-p
 
 Check if an edge exists in a graph.
 
@@ -186,3 +186,23 @@ Check if an edge has a certain property.
 ```
 
 Returns `(values <HasProperty: Bool> <EdgeExists: Bool>)`
+
+#### rem-node
+
+Remove a node from the graph.
+
+```
+(rem-node <DiGraph> <NodeValue: Any>)
+```
+
+Returns `<NodeExisted: Bool>`
+
+#### rem-edge
+
+Remove an edge from the graph.
+
+```
+(rem-edge <DiGraph> <Begin: Any> <End: Any>)
+```
+
+Returns `<EdgeExisted: Bool>`
