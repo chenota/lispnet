@@ -197,12 +197,12 @@ Remove a node from the graph.
 
 Returns `<NodeExisted: Bool>`
 
-#### rem-edge
+#### dot
 
-Remove an edge from the graph.
+Get the dot language representation of the graph; this function is still a work-in-progress and should have a lot more functionality in the future.
 
 ```
-(rem-edge <DiGraph> <Begin: Any> <End: Any>)
+(dot <DiGraph>)
 ```
 
-Returns `<EdgeExisted: Bool>`
+Returns `<DotRepresentation: String>`
