@@ -10,4 +10,5 @@
                (:module "src"
                         :components ((:file "digraph")
                                      (:file "hash")
-                                     (:file "predicate")))))
+                                     (:file "predicate")
+                                     (:file "viz")))))
