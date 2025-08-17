@@ -6,24 +6,21 @@
   (loop
  with ht = (make-hash-table)
  for (k v) on kvs by #'cddr
- do (check-type k keyword "a keyword key")
-   (setf
-     (gethash (string-downcase (symbol-name k)) ht)
-     v)
+ do (setf (gethash k ht) v)
  finally (return ht)))
 
 (defmethod make-attr-lists (attrs item-count)
-  (loop with consts = nil
-        with vars = nil
-        for attr being the hash-keys of attrs
+  (loop for attr being the hash-keys of attrs
         for attr-val = (gethash attr attrs)
-        do (check-type attr string "a string key")
+        do (check-type attr keyword "a keyword key")
           if (listp attr-val)
-        do (progn
-            (unless (= (length attr-val) item-count) (error "invalid attribute count"))
-            (push (mapcar (lambda (x) (format nil "~s=~s" attr (princ-to-string x))) attr-val) vars))
+          if (= (length attr-val) item-count)
+        collect (mapcar
+                    (lambda (x) (format nil "~s=~s" (string-downcase (symbol-name attr)) (princ-to-string x)))
+                    attr-val) into vars
+          else do (error "invalid attribute count")
           else
-        do (push (format nil "~s=~s" attr (princ-to-string attr-val)) consts)
+        collect (format nil "~s=~s" (string-downcase (symbol-name attr)) (princ-to-string attr-val)) into consts
         finally (return (values consts (apply #'mapcar (cons #'list vars))))))
 
 (defmethod dot-nodes ((d digraph) attrs)
