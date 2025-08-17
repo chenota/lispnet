@@ -46,7 +46,7 @@
              (error "property keys must be keywords")))))
 
 (defmethod edge-property ((d digraph) begin end key)
-  (unless (keywordp key) (error "property keys must be keywords"))
+  (check-type key keyword "a keyword key")
   (multiple-value-bind
       (value exists-path)
       (gethash-multi (slot-value d 'succ) begin end key)
@@ -80,7 +80,7 @@
    (values 0 nil)))
 
 (defmethod in-strength ((d digraph) node key &key (operation #'+) (init nil init-p))
-  (unless (keywordp key) (error "property keys must be keywords"))
+  (check-type key keyword "a keyword key")
   (if
    (node-p d node)
    (multiple-value-bind

@@ -17,7 +17,7 @@
     (first exists-path)))
 
 (defmethod node-property-p ((d digraph) node key)
-  (unless (keywordp key) (error "property keys must be keywords"))
+  (check-type key keyword "a keyword key")
   (multiple-value-bind
       (property exists-path)
       (gethash-multi (slot-value d 'nodes) node key)
@@ -25,7 +25,7 @@
     (values (first exists-path) (second exists-path))))
 
 (defmethod edge-property-p ((d digraph) begin end key)
-  (unless (keywordp key) (error "property keys must be keywords"))
+  (check-type key keyword "a keyword key")
   (multiple-value-bind
       (property exists-path)
       (gethash-multi (slot-value d 'succ) begin end key)
