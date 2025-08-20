@@ -193,3 +193,11 @@
       (when exists (remhash begin table)))
     t)
    nil))
+
+(defmethod node-count ((d digraph))
+  (hash-table-count (slot-value d 'nodes)))
+
+(defmethod edge-count ((d digraph))
+  (let ((succ (slot-value d 'succ)))
+    (loop for begin being the hash-keys of succ sum
+            (hash-table-count (gethash begin succ)))))

@@ -6,6 +6,7 @@
   (loop
  with ht = (make-hash-table)
  for (k v) on kvs by #'cddr
+ do (check-type k keyword "a keyword key")
  do (setf (gethash k ht) v)
  finally (return ht)))
 
@@ -21,11 +22,31 @@
           else do (error "invalid attribute count")
           else
         collect (format nil "~s=~s" (string-downcase (symbol-name attr)) (princ-to-string attr-val)) into consts
-        finally (return (values consts (apply #'mapcar (cons #'list vars))))))
+        finally (return (values consts (if vars (apply #'mapcar #'list vars) nil)))))
 
 (defmethod dot-nodes ((d digraph) attrs)
-  (with-output-to-string (out) (loop for node being the hash-keys of (slot-value d 'nodes) do
-                                       (format out "~s;" (princ-to-string node)))))
+  (multiple-value-bind
+      (const-attrs var-attrs)
+      (make-attr-lists attrs (node-count d))
+    (with-output-to-string
+        (out)
+      (if
+       var-attrs
+       (loop for node being the hash-keys of (slot-value d 'nodes)
+             for var-attrs-list in var-attrs
+             for attrs-string = (format nil "~{~a~^,~}" (append const-attrs var-attrs-list))
+             do (if
+                 (string= attrs-string "")
+                 (format out "~s;" (princ-to-string node))
+                 (format out "~s[~a];" (princ-to-string node) attrs-string)))
+       (let
+           ((const-attrs-string (format nil "~{~a~^,~}" const-attrs)))
+         (if
+          (string= const-attrs-string "")
+          (loop for node being the hash-keys of (slot-value d 'nodes)
+                do (format out "~s;" (princ-to-string node)))
+          (loop for node being the hash-keys of (slot-value d 'nodes)
+                do (format out "~s[~a];" (princ-to-string node) const-attrs-string))))))))
 
 (defmethod dot-edges ((d digraph) attrs)
   (let ((succ (slot-value d 'succ)))
