@@ -56,5 +56,5 @@
               (loop for end being the hash-keys of (gethash start succ) do
                       (format out "~s->~s;" (princ-to-string start) (princ-to-string end)))))))
 
-(defmethod dot ((d digraph) &key (node-attrs nil) (edge-attrs nil))
+(defmethod dot ((d digraph) &key (node-attrs (make-hash-table)) (edge-attrs (make-hash-table)))
   (concatenate 'string "digraph{" (dot-nodes d node-attrs) (dot-edges d edge-attrs) "}"))

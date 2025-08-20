@@ -164,7 +164,7 @@
       (values nil t)))
    (values nil nil)))
 
-(defmethod rem-node ((d digraph) node)
+(defmethod unset-node ((d digraph) node)
   (if
    (node-p d node)
    (let ((pred-table (slot-value d 'pred))
@@ -179,7 +179,7 @@
      t)
    nil))
 
-(defmethod rem-edge ((d digraph) begin end)
+(defmethod unset-edge ((d digraph) begin end)
   (if
    (edge-p d begin end)
    (progn
