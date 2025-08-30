@@ -136,6 +136,11 @@
 (defmethod nodes ((d digraph))
   (loop for key being the hash-keys of (slot-value d 'nodes) collect key))
 
+(defmethod edges ((d digraph))
+  (loop for start being the hash-keys of (slot-value d 'succ) append
+          (loop for end being the hash-keys of (gethash start (slot-value d 'succ))
+                collect (cons start end))))
+
 (defmethod successor ((d digraph) node)
   (if
    (node-p d node)

@@ -2,27 +2,25 @@
 
 (in-package #:lispnet)
 
-(defun make-dot-attrs (&rest kvs)
-  (loop
- with ht = (make-hash-table)
- for (k v) on kvs by #'cddr
- do (check-type k keyword "a keyword key")
- do (setf (gethash k ht) v)
- finally (return ht)))
-
 (defmethod make-attr-lists (attrs item-count)
-  (loop for attr being the hash-keys of attrs
-        for attr-val = (gethash attr attrs)
-        do (check-type attr keyword "a keyword key")
-          if (listp attr-val)
-          if (= (length attr-val) item-count)
-        collect (mapcar
-                    (lambda (x) (format nil "~s=~s" (string-downcase (symbol-name attr)) (princ-to-string x)))
-                    attr-val) into vars
-          else do (error "invalid attribute count")
-          else
-        collect (format nil "~s=~s" (string-downcase (symbol-name attr)) (princ-to-string attr-val)) into consts
-        finally (return (values consts (if vars (apply #'mapcar #'list vars) nil)))))
+  (let ((attrs-hash
+         (loop
+        with ht = (make-hash-table)
+        for (k v) on attrs by #'cddr
+        do (check-type k keyword "a keyword key")
+        do (setf (gethash k ht) v)
+        finally (return ht))))
+    (loop for attr being the hash-keys of attrs-hash
+          for attr-val = (gethash attr attrs-hash)
+            if (listp attr-val)
+            if (= (length attr-val) item-count)
+          collect (mapcar
+                      (lambda (x) (format nil "~s=~s" (string-downcase (symbol-name attr)) (princ-to-string x)))
+                      attr-val) into vars
+            else do (error "invalid attribute count")
+            else
+          collect (format nil "~s=~s" (string-downcase (symbol-name attr)) (princ-to-string attr-val)) into consts
+          finally (return (values consts (if vars (apply #'mapcar #'list vars) nil))))))
 
 (defmethod dot-nodes ((d digraph) attrs)
   (multiple-value-bind
@@ -32,7 +30,7 @@
         (out)
       (if
        var-attrs
-       (loop for node being the hash-keys of (slot-value d 'nodes)
+       (loop for node in (nodes d)
              for var-attrs-list in var-attrs
              for attrs-string = (format nil "~{~a~^,~}" (append const-attrs var-attrs-list))
              do (if
@@ -43,18 +41,34 @@
            ((const-attrs-string (format nil "~{~a~^,~}" const-attrs)))
          (if
           (string= const-attrs-string "")
-          (loop for node being the hash-keys of (slot-value d 'nodes)
+          (loop for node in (nodes d)
                 do (format out "~s;" (princ-to-string node)))
-          (loop for node being the hash-keys of (slot-value d 'nodes)
+          (loop for node in (nodes d)
                 do (format out "~s[~a];" (princ-to-string node) const-attrs-string))))))))
 
 (defmethod dot-edges ((d digraph) attrs)
-  (let ((succ (slot-value d 'succ)))
+  (multiple-value-bind
+      (const-attrs var-attrs)
+      (make-attr-lists attrs (edge-count d))
     (with-output-to-string
         (out)
-      (loop for start being the hash-keys of succ do
-              (loop for end being the hash-keys of (gethash start succ) do
-                      (format out "~s->~s;" (princ-to-string start) (princ-to-string end)))))))
+      (if
+       var-attrs
+       (loop for edge in (edges d)
+             for var-attrs-list in var-attrs
+             for attrs-string = (format nil "~{~a~^,~}" (append const-attrs var-attrs-list))
+             do (if
+                 (string= attrs-string "")
+                 (format out "~s->~s;" (princ-to-string (car edge)) (princ-to-string (cdr edge)))
+                 (format out "~s->~s[~a];" (princ-to-string (car edge)) (princ-to-string (cdr edge)) attrs-string)))
+       (let
+           ((const-attrs-string (format nil "~{~a~^,~}" const-attrs)))
+         (if
+          (string= const-attrs-string "")
+          (loop for edge in (edges d)
+                do (format out "~s->~s;" (princ-to-string (car edge)) (princ-to-string (cdr edge))))
+          (loop for edge in (edges d)
+                do (format out "~s->~s[~a];" (princ-to-string (car edge)) (princ-to-string (cdr edge)) const-attrs-string))))))))
 
-(defmethod dot ((d digraph) &key (node-attrs (make-hash-table)) (edge-attrs (make-hash-table)))
+(defmethod dot ((d digraph) &key (node-attrs nil) (edge-attrs nil))
   (concatenate 'string "digraph{" (dot-nodes d node-attrs) (dot-edges d edge-attrs) "}"))
