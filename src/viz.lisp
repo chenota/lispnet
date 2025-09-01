@@ -2,7 +2,10 @@
 
 (in-package #:lispnet)
 
-(defmethod make-attr-lists (attrs item-count)
+(defun comma-list (items)
+  (format nil "~{~a~^,~}" items))
+
+(defun make-attr-lists (attrs item-count)
   (let ((attrs-hash
          (loop
         with ht = (make-hash-table)
@@ -32,13 +35,13 @@
        var-attrs
        (loop for node in (nodes d)
              for var-attrs-list in var-attrs
-             for attrs-string = (format nil "~{~a~^,~}" (append const-attrs var-attrs-list))
+             for attrs-string = (comma-list (append const-attrs var-attrs-list))
              do (if
                  (string= attrs-string "")
                  (format out "~s;" (princ-to-string node))
                  (format out "~s[~a];" (princ-to-string node) attrs-string)))
        (let
-           ((const-attrs-string (format nil "~{~a~^,~}" const-attrs)))
+           ((const-attrs-string (comma-list const-attrs)))
          (if
           (string= const-attrs-string "")
           (loop for node in (nodes d)
@@ -56,13 +59,13 @@
        var-attrs
        (loop for edge in (edges d)
              for var-attrs-list in var-attrs
-             for attrs-string = (format nil "~{~a~^,~}" (append const-attrs var-attrs-list))
+             for attrs-string = (comma-list (append const-attrs var-attrs-list))
              do (if
                  (string= attrs-string "")
                  (format out "~s->~s;" (princ-to-string (car edge)) (princ-to-string (cdr edge)))
                  (format out "~s->~s[~a];" (princ-to-string (car edge)) (princ-to-string (cdr edge)) attrs-string)))
        (let
-           ((const-attrs-string (format nil "~{~a~^,~}" const-attrs)))
+           ((const-attrs-string (comma-list const-attrs)))
          (if
           (string= const-attrs-string "")
           (loop for edge in (edges d)
