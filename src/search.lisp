@@ -19,20 +19,22 @@
          (closed (make-hash-table :test 'equal)))
     (labels ((memo-heuristic
               (node)
-              (if memoize-heuristic (funcall heuristic d node goal)
+              (if memoize-heuristic
                   (multiple-value-bind (val ok) (gethash node heuristic-table)
                     (if ok val
                         (progn
                          (setf (gethash node heuristic-table) (funcall heuristic d node goal))
-                         (gethash node heuristic-table))))))
+                         (gethash node heuristic-table))))
+                  (funcall heuristic d node goal)))
              (memo-weight
               (start end)
-              (if memoize-weight (funcall weight d start end)
+              (if memoize-weight
                   (multiple-value-bind (val ok) (gethash (cons start end) weight-table)
                     (if ok val
                         (progn
                          (setf (gethash (cons start end) weight-table) (funcall weight d start end))
-                         (gethash (cons start end) weight-table)))))))
+                         (gethash (cons start end) weight-table))))
+                  (funcall weight d start end))))
       (setf (gethash start g-score) 0)
       (enq open-nodes (memo-heuristic start) start)
       (loop while (> (pqueue-size open-nodes) 0) do
