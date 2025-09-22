@@ -11,4 +11,6 @@
                         :components ((:file "digraph")
                                      (:file "hash")
                                      (:file "predicate")
-                                     (:file "viz")))))
+                                     (:file "viz")
+                                     (:file "queue")
+                                     (:file "search")))))
