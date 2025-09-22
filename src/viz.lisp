@@ -3,6 +3,7 @@
 (in-package #:lispnet)
 
 (defmethod dot-nodes ((d digraph) attrs)
+  "Generate node section of a dotfile."
   (with-output-to-string
       (out)
     (loop for node in (nodes d)
@@ -17,6 +18,7 @@
               (format out "~s[~a];" (princ-to-string node) attrs-string)))))
 
 (defmethod dot-edges ((d digraph) attrs)
+  "Generate edges section of a dotfile."
   (with-output-to-string
       (out)
     (loop for (start . end) in (edges d)
@@ -31,4 +33,5 @@
               (format out "~s->~s[~a];" start end attrs-string)))))
 
 (defmethod dot ((d digraph) &key (node-attrs nil) (edge-attrs nil))
+  "Generate a dotfile as a string."
   (concatenate 'string "digraph{" (dot-nodes d node-attrs) (dot-edges d edge-attrs) "}"))

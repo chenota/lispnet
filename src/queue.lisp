@@ -4,14 +4,18 @@
 
 (defclass pqueue ()
     ((data :initform (make-array 0 :adjustable t :fill-pointer 0) :accessor pqueue-data)
-     (size :initform 0 :accessor pqueue-size)))
+     (size :initform 0 :accessor pqueue-size))
+  (:documentation "A key-value priority queue built for the a* algorithm."))
 
 (defmethod enq ((p pqueue) key value)
+  "Enqueue a key-value pair."
+  ;; Add k-v pair to end of array.
   (if
    (>= (pqueue-size p) (length (pqueue-data p)))
    (vector-push-extend (cons key value) (pqueue-data p))
    (setf (aref (pqueue-data p) (pqueue-size p)) (cons key value)))
   (incf (pqueue-size p))
+  ;; Bubble bottom element up.
   (loop for i = (1- (pqueue-size p)) then parent
         for parent = (truncate (1- i) 2)
         while (> i 0) do
@@ -21,10 +25,13 @@
            (return))))
 
 (defmethod deq ((p pqueue))
-  (when (<= (pqueue-size p) 0) (error "heap is empty"))
+  "Dequeue a value."
+  (when (<= (pqueue-size p) 0) (error "queue is empty"))
   (let ((root (aref (pqueue-data p) 0)))
     (decf (pqueue-size p))
+    ;; Swap first and last element of array.
     (setf (aref (pqueue-data p) 0) (aref (pqueue-data p) (pqueue-size p)))
+    ;; Bubble top element down.
     (loop for i = 0 then smallest
           for smallest = i do
             (let ((left (+ (* 2 i) 1))

@@ -3,20 +3,24 @@
 (in-package #:lispnet)
 
 (defun weight1 (digraph current neighbor)
+  "Returns an edge weight of one."
   (declare (ignore digraph) (ignore current) (ignore neighbor))
   1)
 
 (defun heuristic0 (digraph current goal)
+  "Returns a heuristic value of zero."
   (declare (ignore digraph) (ignore current) (ignore goal))
   0)
 
 (defmethod a* ((d digraph) start goal &key (weight #'weight1) (heuristic #'heuristic0) (memoize-weight nil) (memoize-heuristic nil))
+  "The a* search algorithm."
   (let* ((open-nodes (make-instance 'pqueue))
          (g-score (make-hash-table :test 'equal))
          (weight-table (make-hash-table :test 'equal))
          (heuristic-table (make-hash-table :test 'equal))
          (came-from (make-hash-table :test 'equal))
          (closed (make-hash-table :test 'equal)))
+    ;; Functions to memoize values if user opts to.
     (labels ((memo-heuristic
               (node)
               (if memoize-heuristic
@@ -35,8 +39,10 @@
                          (setf (gethash (cons start end) weight-table) (funcall weight d start end))
                          (gethash (cons start end) weight-table))))
                   (funcall weight d start end))))
+      ;; Initialize with start node.
       (setf (gethash start g-score) 0)
       (enq open-nodes (memo-heuristic start) start)
+      ;; Basic a* loop.
       (loop while (> (pqueue-size open-nodes) 0) do
               (let ((cheapest (deq open-nodes)))
                 (when (equal cheapest goal)
