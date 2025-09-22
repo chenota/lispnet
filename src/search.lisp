@@ -59,6 +59,6 @@
                                     (< tentative-g (gethash neighbor g-score)))
                                 (setf (gethash neighbor came-from) cheapest)
                                 (setf (gethash neighbor g-score) tentative-g)
-                                (enq open-nodes (+ tentative-g (memo-heuristic neighbor)) neighbor))))
+                                (unless (gethash neighbor closed) (enq open-nodes (+ tentative-g (memo-heuristic neighbor)) neighbor)))))
                 (setf (gethash cheapest closed) t)))))
   nil)
