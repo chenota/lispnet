@@ -2,30 +2,55 @@
 
 (in-package #:lispnet)
 
-(defmethod a* ((d digraph) start goal weight heuristic)
+(defun weight1 (digraph current neighbor)
+  (declare (ignore digraph) (ignore current) (ignore neighbor))
+  1)
+
+(defun heuristic0 (digraph current goal)
+  (declare (ignore digraph) (ignore current) (ignore goal))
+  0)
+
+(defmethod a* ((d digraph) start goal &key (weight #'weight1) (heuristic #'heuristic0) (memoize-weight nil) (memoize-heuristic nil))
   (let* ((open-nodes (make-instance 'pqueue))
          (g-score (make-hash-table :test 'equal))
+         (weight-table (make-hash-table :test 'equal))
+         (heuristic-table (make-hash-table :test 'equal))
          (came-from (make-hash-table :test 'equal))
          (closed (make-hash-table :test 'equal)))
-    (setf (gethash start g-score) 0)
-    (let ((h (funcall heuristic d start goal)))
-      (enq open-nodes h start))
-    (loop while (> (pqueue-size open-nodes) 0) do
-            (let ((cheapest (deq open-nodes)))
-              (when (equal cheapest goal)
-                    (loop
-                   for current = cheapest then (gethash current came-from)
-                   while current
-                   collect current into path
-                   finally (return-from a* (reverse path))))
-              (when (gethash cheapest closed)
-                    (continue))
-              (loop for neighbor in (successor d cheapest) do
-                      (let ((tentative-g (+ (gethash cheapest g-score) (funcall weight d cheapest neighbor))))
-                        (when (or (not (gethash neighbor g-score))
-                                  (< tentative-g (gethash neighbor g-score)))
-                              (setf (gethash neighbor came-from) cheapest)
-                              (setf (gethash neighbor g-score) tentative-g)
-                              (enq open-nodes (+ tentative-g (funcall heuristic d neighbor goal)) neighbor))))
-              (setf (gethash cheapest closed) t))))
+    (labels ((memo-heuristic
+              (node)
+              (if memoize-heuristic (funcall heuristic d node goal)
+                  (multiple-value-bind (val ok) (gethash node heuristic-table)
+                    (if ok val
+                        (progn
+                         (setf (gethash node heuristic-table) (funcall heuristic d node goal))
+                         (gethash node heuristic-table))))))
+             (memo-weight
+              (start end)
+              (if memoize-weight (funcall weight d start end)
+                  (multiple-value-bind (val ok) (gethash (cons start end) weight-table)
+                    (if ok val
+                        (progn
+                         (setf (gethash (cons start end) weight-table) (funcall weight d start end))
+                         (gethash (cons start end) weight-table)))))))
+      (setf (gethash start g-score) 0)
+      (enq open-nodes (memo-heuristic start) start)
+      (loop while (> (pqueue-size open-nodes) 0) do
+              (let ((cheapest (deq open-nodes)))
+                (when (equal cheapest goal)
+                      (loop
+                     for current = cheapest then (gethash current came-from)
+                     while current
+                     collect current into path
+                     finally (return-from a* (reverse path))))
+                (when (gethash cheapest closed)
+                      (continue))
+                (loop for neighbor in (successor d cheapest) do
+                        (let ((tentative-g (+ (gethash cheapest g-score) (memo-weight cheapest neighbor))))
+                          (when (or (not (gethash neighbor g-score))
+                                    (< tentative-g (gethash neighbor g-score)))
+                                (setf (gethash neighbor came-from) cheapest)
+                                (setf (gethash neighbor g-score) tentative-g)
+                                (enq open-nodes (+ tentative-g (memo-heuristic neighbor)) neighbor))))
+                (setf (gethash cheapest closed) t)))))
   nil)
