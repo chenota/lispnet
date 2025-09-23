@@ -3,6 +3,7 @@
 (in-package #:lispnet)
 
 (defun gethash-or (key table default)
+  "Get the stored hash value or a provided default if the value doesn't exist. Adds the provided default as a value to the table."
   (multiple-value-bind
       (val exists)
       (gethash key table)
@@ -12,6 +13,7 @@
      (setf (gethash key table) default))))
 
 (defun gethash-multi (table &rest args)
+  "Traverse nested hash tables to retrieve a value."
   (labels
       ((gethash-multi-helper
         (keys current exists-path)
