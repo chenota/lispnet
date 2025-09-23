@@ -13,4 +13,5 @@
                                      (:file "predicate")
                                      (:file "viz")
                                      (:file "queue")
-                                     (:file "search")))))
+                                     (:file "search")
+                                     (:file "error")))))

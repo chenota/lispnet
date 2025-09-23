@@ -14,16 +14,15 @@
 
 (defun gethash-multi (table &rest args)
   "Traverse nested hash tables to retrieve a value."
-  (labels
-      ((gethash-multi-helper
-        (keys current exists-path)
-        (cond
-         ((not keys)
-           (values current exists-path))
-         ((not (typep current 'hash-table))
-           (gethash-multi-helper (cdr keys) nil (cons nil exists-path)))
-         (t
-           (multiple-value-bind (next exists)
-               (gethash (car keys) current)
-             (gethash-multi-helper (cdr keys) next (cons exists exists-path)))))))
-    (gethash-multi-helper args table '())))
+  (loop with current = table
+        for arg in args
+        for level = 0 then (1+ level)
+        do (unless (typep table 'hash-table) (error 'nested-hash-not-found-error :level level))
+        do (setf
+             current
+             (multiple-value-bind
+                 (value found)
+                 (gethash arg current)
+               (unless found (error 'nested-hash-not-found-error :level level))
+               value))
+        finally (return current)))
