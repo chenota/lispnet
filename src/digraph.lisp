@@ -93,50 +93,37 @@
      (hash-table-count succ-table)
      0)))
 
-(defmethod in-strength ((d digraph) node key &key (operation #'+) (init nil init-p))
+(defmethod in-strength ((d digraph) node weight &key (adder #'+) (initial-value nil init-p))
   "Calculate the in-strength of a node relative to a property."
-  (check-type key keyword "a keyword key")
+  (check-type weight (or keyword function) "a keyword or function")
   (unless (node-p d node) (error 'node-not-found-error :node node))
-  (multiple-value-bind
-      (pred-table exists)
-      (gethash node (slot-value d 'pred))
-    (if
-     exists
-     (loop
-    with result = init
-    for start-node being the hash-keys of pred-table
-    for prop = (edge-property d start-node node key)
-    do (if
-        init-p
-        (setf result (funcall operation prop result))
-        (progn
-         (setf result prop)
-         (setf init-p t)))
-    finally (return result))
-     init)))
+  (unless (predecessor d node) (return-from in-strength initial-value))
+  (labels
+      ((getweight
+        (start end)
+        (if (functionp weight)
+            (funcall weight d start end)
+            (edge-property d start end weight))))
+    (let* ((pred-list (predecessor d node))
+           (init (if init-p initial-value (getweight (car pred-list) node)))
+           (seq (if init-p pred-list (cdr pred-list))))
+      (reduce (lambda (acc start-node) (funcall adder (getweight start-node node) acc)) seq :initial-value init))))
 
-(defmethod out-strength ((d digraph) node key &key (operation #'+) (init nil init-p))
+(defmethod out-strength ((d digraph) node weight &key (adder #'+) (initial-value nil init-p))
   "Calculate the out-strength of a node relative to a property."
-  (check-type key keyword "a keyword key")
+  (check-type weight (or keyword function) "a keyword or function")
   (unless (node-p d node) (error 'node-not-found-error :node node))
-  (multiple-value-bind
-      (succ-table exists)
-      (gethash node (slot-value d 'succ))
-    (if
-     exists
-     (loop
-    with result = init
-    for end-node being the hash-keys of succ-table
-    for prop = (edge-property d node end-node key)
-    do
-      (if
-       init-p
-       (setf result (funcall operation prop result))
-       (progn
-        (setf result prop)
-        (setf init-p t)))
-    finally (return result))
-     init)))
+  (unless (successor d node) (return-from out-strength initial-value))
+  (labels
+      ((getweight
+        (start end)
+        (if (functionp weight)
+            (funcall weight d start end)
+            (edge-property d start end weight))))
+    (let* ((succ-list (successor d node))
+           (init (if init-p initial-value (getweight node (car succ-list))))
+           (seq (if init-p succ-list (cdr succ-list))))
+      (reduce (lambda (acc end-node) (funcall adder (getweight node end-node) acc)) seq :initial-value init))))
 
 (defmethod nodes ((d digraph))
   "Retrieve a list containing each node in the graph."

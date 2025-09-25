@@ -12,26 +12,23 @@
 
 (defmethod edge-p ((d digraph) begin end)
   "Checks if an edge is in the graph."
-  (multiple-value-bind
-      (value exists-path)
+  (handler-case
       (gethash-multi (slot-value d 'succ) begin end)
-    (declare (ignore value))
-    (first exists-path)))
+    (nested-hash-not-found-error (e) (declare (ignore e)) nil)
+    (:no-error (result) (declare (ignore result)) t)))
 
 (defmethod node-property-p ((d digraph) node key)
   "Checks if a node has a particular property."
   (check-type key keyword "a keyword key")
-  (multiple-value-bind
-      (property exists-path)
+  (handler-case
       (gethash-multi (slot-value d 'nodes) node key)
-    (declare (ignore property))
-    (values (first exists-path) (second exists-path))))
+    (nested-hash-not-found-error (e) (declare (ignore e)) nil)
+    (:no-error (result) (declare (ignore result)) t)))
 
 (defmethod edge-property-p ((d digraph) begin end key)
   "Checks if an edge has a particular property."
   (check-type key keyword "a keyword key")
-  (multiple-value-bind
-      (property exists-path)
+  (handler-case
       (gethash-multi (slot-value d 'succ) begin end key)
-    (declare (ignore property))
-    (values (first exists-path) (and (second exists-path) (third exists-path)))))
+    (nested-hash-not-found-error (e) (declare (ignore e)) nil)
+    (:no-error (result) (declare (ignore result)) t)))
