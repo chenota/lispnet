@@ -14,4 +14,5 @@
                                      (:file "viz")
                                      (:file "queue")
                                      (:file "search")
-                                     (:file "error")))))
+                                     (:file "error")
+                                     (:file "make")))))

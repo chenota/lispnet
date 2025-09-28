@@ -8,9 +8,11 @@
      (pred :initform (make-hash-table :test 'equal)))
   (:documentation "A directed graph."))
 
-(defun make-digraph ()
-  "Create an empty directed graph."
-  (make-instance 'digraph))
+(defmethod print-object ((d digraph) stream)
+  (print-unreadable-object (d stream :type t :identity t)
+    (format stream "V=~A E=~A"
+      (node-count d)
+      (edge-count d))))
 
 (defmethod set-node ((d digraph) node &rest args)
   "Add a node or update an existing node's properties."
