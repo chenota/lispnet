@@ -41,3 +41,10 @@
 (define-condition nested-hash-not-found-error (not-found-error)
     ((message :initform "nested hash value not found")
      (level :initarg :level :reader failure-level)))
+
+(define-condition out-of-bounds-error (lispnet-error)
+    ((message :initform "out of bounds")))
+
+(define-condition probability-out-of-bounds-error (lispnet-error)
+    ((message :initform "probability not in range [0, 1]")
+     (value :initarg :value)))
