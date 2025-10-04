@@ -53,6 +53,26 @@
                    do (set-edge d i j)))
     d))
 
+(defun make-havel-hakimi (seq)
+  "Create a simple graph using the Havel-Hakimi algorithm."
+  (check-type seq sequence)
+  (loop for v in seq do (check-type v (integer 0 *) "a non-negative integer"))
+  (let*
+      ((d (make-empty (length seq))))
+    (loop for l = (sort (loop for i from 0 for v in seq collect (cons v i)) #'> :key #'car) then (cdr l)
+          while l
+          do (loop
+            with count = 0
+            for ll = (cdr l) then (cdr ll)
+            while (< count (caar l))
+              when (null ll) do (error 'not-graphical)
+              when (> (caar ll) 0)
+            do (progn
+                (incf count)
+                (decf (caar ll))
+                (set-edge d (cdar l) (cdar ll)))))
+    d))
+
 (defun random-bool (p)
   (check-type p (or float rational) "a float or rational")
   (unless (and (>= p 0) (<= p 1)) (error 'probability-out-of-bounds-error :value p))

@@ -95,6 +95,10 @@
      (hash-table-count succ-table)
      0)))
 
+(defmethod degree ((d digraph) node)
+  "Sum the in-degree and the out-degree of a node."
+  (+ (in-degree d node) (out-degree d node)))
+
 (defmethod in-strength ((d digraph) node weight &key (adder #'+) (initial-value nil init-p))
   "Calculate the in-strength of a node relative to a property."
   (check-type weight (or keyword function) "a keyword or function")
