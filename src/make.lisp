@@ -53,11 +53,12 @@
                    do (set-edge d i j)))
     d))
 
-(defun make-havel-hakimi (seq)
+(defun make-havel-hakimi (seq &optional (direction :bi))
   "Create a simple graph using the Havel-Hakimi algorithm."
   (check-type seq sequence)
   (loop for v in seq do (check-type v (integer 0 *) "a non-negative integer"))
-  (let*
+  (check-type direction (member :in :out :bi))
+  (let
       ((d (make-empty (length seq))))
     (loop for l = (sort (loop for i from 0 for v in seq collect (cons v i)) #'> :key #'car) then (cdr l)
           while l
@@ -70,7 +71,8 @@
             do (progn
                 (incf count)
                 (decf (caar ll))
-                (set-edge d (cdar l) (cdar ll)))))
+                (when (member direction '(:out :bi)) (set-edge d (cdar l) (cdar ll)))
+                (when (member direction '(:in :bi)) (set-edge d (cdar ll) (cdar l))))))
     d))
 
 (defun random-bool (p)
