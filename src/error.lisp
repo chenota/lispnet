@@ -58,3 +58,16 @@
 (define-condition not-graphical (invalid-sequence)
     ()
   (:default-initargs :message "sequence is not graphical"))
+
+(define-condition invalid-arg (lispnet-error)
+    ()
+  (:default-initargs :message "invalid argument"))
+
+(define-condition excessive-arg (invalid-arg)
+    ((source :initarg :source)
+     (target :initarg :target))
+  (:default-initargs :message "argument value exceeds that of target argument"))
+
+(define-condition uneven-arg (invalid-arg)
+    ((source :initarg :source))
+  (:default-initargs :message "argument value is uneven"))
