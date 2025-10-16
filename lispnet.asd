@@ -4,7 +4,7 @@
   :description "Network library for Common Lisp"
   :author "Alex Chenot <alex@chenot.dev>"
   :license "MIT"
-  :version "0.0.1"
+  :version "1.0.0"
   :serial t
   :components ((:file "package")
                (:module "src"
