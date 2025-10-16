@@ -131,3 +131,18 @@
                        (when (member direction '(:out :bi)) (set-edge d j i))
                        (when (member direction '(:in :bi)) (set-edge d i j)))))
     d))
+
+(defun make-watts-strogatz (n k p &key (bi nil))
+  "Create a random graph using the Watts-Strogatz model."
+  (let
+      ((d (make-ring-lattice n k)))
+    (loop for (start . end) in (edges d) when (random-bool p)
+          do (progn
+              (unset-edge d start end)
+              (let ((candidates
+                     (set-difference
+                       (nodes d)
+                       `(,@(successor d start) ,start ,@(if bi (predecessor d start) nil)))))
+                (set-edge d start (nth (random (length candidates)) candidates)))))
+    (when bi (loop for (start . end) in (edges d) do (set-edge d end start)))
+    d))
