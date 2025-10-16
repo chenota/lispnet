@@ -43,7 +43,6 @@
            :property-not-found-error
            :edge-not-found-error
            :uneven-argument-error
-           :nested-hash-not-found-error
            :out-of-bounds-error
            :probability-out-of-bounds-error
            :invalid-sequence
